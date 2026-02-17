@@ -41,7 +41,7 @@ resource "openstack_compute_keypair_v2" "vm_key" {
 
 # --- MODIFICATION ICI : La source pointe vers le dossier local ---
 module "vm_stormshield_fwfe" {
-  source = "./modules/security"
+  source = "git::https://github.com/ansforge/terraform-ovh-security.git//modules/security?ref=amont"
 
   # Variables de connexion requises par le module
   os_auth_url = var.os_auth_url
