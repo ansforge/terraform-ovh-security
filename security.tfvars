@@ -7,8 +7,9 @@ os_domain       = "Default"
 region          = "SBG5"
 name            = "infra-amont-fwfe01"
 flavor          = "acb62e0d-fa78-4a09-8e08-ba2e30fb4ff9"
-image           = "9ba60c29-ea48-419a-bb2a-f65f4f2cef62"
+image           = "daa98d83-b615-4cba-937f-975af9990238"
 key_pair        = "vm-fwfe-key"
+
 
 networks = [
   { name = "fwfe-amont-admin-172.16.11.0-24", ip = "172.16.11.254", enabled = true },
