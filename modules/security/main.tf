@@ -1,56 +1,56 @@
+# modules/security/main.tf
 terraform {
   required_providers {
-    openstack = {
-      source  = "terraform-provider-openstack/openstack"
-      version = ">= 3.4.0"
-    }
+    openstack = { source = "terraform-provider-openstack/openstack" }
+    tls       = { source = "hashicorp/tls" }
   }
 }
 
-resource "openstack_compute_instance_v2" "vm" {
-  name            = var.name
-  flavor_id       = var.flavor
-  image_id        = var.image
-  key_pair        = var.key_pair
-  region          = var.region
-  availability_zone = "nova"
+resource "tls_private_key" "instance_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
 
-  network {
-    name       = var.networks[0].name
-    fixed_ip_v4 = var.networks[0].ip
+resource "openstack_compute_keypair_v2" "instance_kp" {
+  name       = "key-${var.name}"
+  public_key = tls_private_key.instance_key.public_key_openssh
+}
+
+# Utilisation de data source pour trouver l'ID du réseau par son NOM
+data "openstack_networking_network_v2" "networks" {
+  for_each = { for n in var.networks : n.name => n if n.enabled }
+  name     = each.key
+  region   = var.region
+}
+
+# Création du Port (Interface)
+resource "openstack_networking_port_v2" "ports" {
+  for_each   = { for n in var.networks : n.name => n if n.enabled }
+  name       = "port-${var.name}-${each.key}"
+  network_id = data.openstack_networking_network_v2.networks[each.key].id
+  region     = var.region
+
+  fixed_ip {
+    ip_address = each.value.ip
+  }
+
+  port_security_enabled = false # Obligatoire pour Stormshield
+}
+
+# L'Instance
+resource "openstack_compute_instance_v2" "fw" {
+  name      = var.name
+  flavor_id = var.flavor
+  image_id  = var.image
+  key_pair  = openstack_compute_keypair_v2.instance_kp.name
+  region    = var.region
+
+  dynamic "network" {
+    for_each = openstack_networking_port_v2.ports
+    content {
+      port = network.value.id
+    }
   }
 
   metadata = var.tags
-  security_groups = ["default"]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  timeouts {
-    create = "15m"
-    delete = "15m"
-  }
-}
-
-data "openstack_networking_network_v2" "net" {
-  for_each = { for idx, n in var.networks : idx => n if idx > 0 && n.enabled }
-  name     = each.value.name
-}
-
-resource "openstack_compute_interface_attach_v2" "net_attach" {
-  for_each = { for idx, n in var.networks : idx => n if idx > 0 && n.enabled }
-
-  instance_id = openstack_compute_instance_v2.vm.id
-  network_id  = data.openstack_networking_network_v2.net[each.key].id
-  fixed_ip    = each.value.ip
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  timeouts {
-    create = "10m"
-    delete = "10m"
-  }
 }

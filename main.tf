@@ -1,64 +1,61 @@
-# --- terraform-ovh-security/main.tf ---
+# main.tf (Racine du projet terraform-ovh-security)
 
 terraform {
   required_providers {
-    ovh = {
-      source  = "ovh/ovh"
-      version = ">= 2.11.0"
-    }
-    openstack = {
-      source  = "terraform-provider-openstack/openstack"
-      version = ">= 3.4.0"
-    }
-    tls = {
-      source  = "hashicorp/tls"
-      version = ">= 4.2.0"
-    }
+    ovh       = { source = "ovh/ovh", version = ">= 0.40.0" }
+    openstack = { source = "terraform-provider-openstack/openstack", version = ">= 1.53.0" }
+    vault     = { source = "hashicorp/vault", version = ">= 3.25.0" }
   }
 }
 
-provider "ovh" {
-  endpoint = "ovh-eu"
-  # Ajoutez les credentials ici si nécessaire, ou via var.
+# --- Configuration Vault ---
+provider "vault" {
+  # L'adresse de Vault est généralement récupérée via la variable d'env VAULT_ADDR
+  skip_child_token = true
 }
 
+# Récupération des credentials OpenStack depuis Vault
+ephemeral "vault_kv_secret_v2" "os" {
+  mount = "iacrunner-prod"
+  name  = "openstack_key"
+}
+
+locals {
+  os_creds = ephemeral.vault_kv_secret_v2.os.data
+}
+
+# --- Configuration du Provider OpenStack ---
 provider "openstack" {
-  auth_url                        = var.os_auth_url
-  application_credential_id       = var.os_user
-  application_credential_secret   = var.os_password
-  region                          = var.region
+  auth_url                      = local.os_creds["OS_AUTH_URL"]
+  application_credential_id     = local.os_creds["OS_APPLICATION_CREDENTIAL_ID"]
+  application_credential_secret = local.os_creds["OS_APPLICATION_CREDENTIAL_SECRET"]
+  region                        = var.region
 }
 
-resource "tls_private_key" "vm_ssh_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
+# --- Appel du Module Security ---
+# Ce module gère la génération des clés SSH, les ports réseaux et l'instance Stormshield
+module "stormshield_cluster" {
+  source   = "./modules/security"
+  for_each = var.firewalls
+
+  name     = each.value.name
+  flavor   = each.value.flavor
+  image    = each.value.image
+  region   = var.region
+  networks = each.value.networks
+  tags     = each.value.tags
+
+  # Note : Les variables os_user, os_password et key_pair ont été retirées 
+  # car elles sont gérées soit par le provider global, soit en interne par le module.
 }
 
-resource "openstack_compute_keypair_v2" "vm_key" {
-  name       = "vm-fwfe-key"
-  public_key = tls_private_key.vm_ssh_key.public_key_openssh
-}
-
-# --- MODIFICATION ICI : La source pointe vers le dossier local ---
-module "vm_stormshield_fwfe" {
-  source = "git::https://github.com/ansforge/terraform-ovh-security.git//modules/security?ref=amont"
-
-  # Variables de connexion requises par le module
-  os_auth_url = var.os_auth_url
-  os_user     = var.os_user
-  os_password = var.os_password
-  region      = var.region
-
-  name     = var.name
-  flavor   = var.flavor
-  image    = var.image
-  key_pair = openstack_compute_keypair_v2.vm_key.name
-
-  networks = var.networks
-  tags     = var.tags
-}
-
-output "private_key" {
-  value     = tls_private_key.vm_ssh_key.private_key_pem
+# --- Outputs ---
+# Récupération des clés privées générées dynamiquement pour chaque firewall
+output "fw_private_keys" {
+  value     = { for k, v in module.stormshield_cluster : k => v.private_key_pem }
   sensitive = true
+}
+
+output "fw_instance_ids" {
+  value = { for k, v in module.stormshield_cluster : k => v.instance_id }
 }
