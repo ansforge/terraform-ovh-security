@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"stormshield_cluster","Source":"./modules/security","Dir":"modules/security"},{"Key":"vm_stormshield_fwfe","Source":"git::https://github.com/ansforge/terraform-ovh-security.git//modules/security?ref=amont","Dir":".terraform/modules/vm_stormshield_fwfe/modules/security"}]}
