@@ -1,43 +1,28 @@
-region = "RBX-A"
+region = "SBG5"
 
 firewalls = {
-  # --- Stormshield Master (fwfe01) ---
   "fwfe01" = {
-    name   = "infra-prod-fwfe01"
-    flavor = "58a6c33c-8c3d-4a94-8d03-2153139832b8"
-    image  = "042e000e-55b0-4c3c-8398-60d853d886f5"
+    name   = "infra-amont-fwfe01"
+    flavor = "acb62e0d-fa78-4a09-8e08-ba2e30fb4ff9"
+    image  = "9ba60c29-ea48-419a-bb2a-f65f4f2cef62"
 
     networks = [
-      { name = "prod-production-fwfe-ha-172.16.21.32-28",    ip = "172.16.21.45", enabled = true },
-      { name = "prod-production-app-front-10.13.0.0-24",    ip = "10.13.0.251",  enabled = true },
-      { name = "prod-production-k8s-front-10.11.60.0-24",   ip = "10.11.60.251", enabled = true },
-      { name = "prod-production-dmz-transit-10.11.70.0-24",  ip = "10.11.70.251", enabled = true },
-      { name = "prod-production-dmz-exposed-10.11.30.0-24",  ip = "10.11.30.251", enabled = true },
-      { name = "prod-production-fwfe-admin-10.11.20.0-24",   ip = "10.11.20.251", enabled = true },
-      { name = "prod-production-fw-interco-172.16.21.16-28", ip = "172.16.21.29",  enabled = true },
-      { name = "prod-production-vrack-vpn-10.11.10.0-24",    ip = "10.11.10.251", enabled = true }
+      { name = "preprod-amont-fwfe-front-10.12.0.0-24",    ip = "10.12.0.251",  enabled = true },
+      { name = "preprod-amont-fwfe-admin-10.12.20.0-24",   ip = "10.12.20.251", enabled = true },
+      { name = "preprod-amont-dmz-exposed-10.12.30.0-24",  ip = "10.12.30.251", enabled = true },
+      { name = "preprod-amont-dmz-transit-10.12.70.0-24",  ip = "10.12.70.251", enabled = true },
+      { name = "preprod-amont-infra-app-10.12.90.0-24",    ip = "10.12.90.251", enabled = true },
+      { name = "preprod-amont-k8s-front-10.12.60.0-24",    ip = "10.12.60.251", enabled = true },
+      { name = "preprod-amont-vrack-vpn-10.12.10.0-24",    ip = "10.12.10.251", enabled = true },
+
+      # Interco /28 (plage: .17 → .30)
+      { name = "preprod-amont-fw-interco-172.16.31.16-28", ip = "172.16.31.29", enabled = true }
     ]
 
-    tags = { Owner = "infra-team", Env = "prod", Role = "master" }
-  },
-
-  # --- Stormshield Slave (fwfe02) ---
-  "fwfe02" = {
-    name   = "infra-prod-fwfe02"
-    flavor = "58a6c33c-8c3d-4a94-8d03-2153139832b8"
-    image  = "042e000e-55b0-4c3c-8398-60d853d886f5"
-
-    networks = [
-      { name = "prod-production-fwfe-ha-172.16.21.32-28",    ip = "172.16.21.44", enabled = true },
-      { name = "prod-production-app-front-10.13.0.0-24",    ip = "10.13.0.252",  enabled = true },
-      { name = "prod-production-k8s-front-10.11.60.0-24",   ip = "10.11.60.252", enabled = true },
-      { name = "prod-production-dmz-transit-10.11.70.0-24",  ip = "10.11.70.252", enabled = true },
-      { name = "prod-production-dmz-exposed-10.11.30.0-24",  ip = "10.11.30.252", enabled = true },
-      { name = "prod-production-fwfe-admin-10.11.20.0-24",   ip = "10.11.20.252", enabled = true },
-      { name = "prod-production-fw-interco-172.16.21.16-28", ip = "172.16.21.28",  enabled = true },
-      { name = "prod-production-vrack-vpn-10.11.10.0-24",    ip = "10.11.10.252", enabled = true }
-    ]
-
-    tags = { Owner = "infra-team", Env = "prod", Role = "slave" }
+    tags = {
+      Owner = "infra-team"
+      Env   = "amont"
+      Role  = "master"
+    }
   }
 }
