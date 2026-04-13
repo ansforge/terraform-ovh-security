@@ -1,0 +1,77 @@
+region = "EU-WEST-PAR"
+
+firewalls = {
+  "fwfe01" = {
+    name   = "infra-outils-fwfe01"
+    flavor = "3e0be0e7-9ed7-47da-b5a5-473832a4a6c0"
+    image  = "333bc0fd-7067-4997-ae74-97f609f8d1bc"
+
+    networks = [
+      { name = "outils-vrack-vpn-10.15.10.0-24",       ip = "10.15.10.251",  enabled = true },
+      { name = "outils-fwfe-admin-10.15.20.0-24",      ip = "10.15.20.251",  enabled = true },
+      { name = "outils-dmz-exposed-10.15.30.0-24",     ip = "10.15.30.251",  enabled = true },
+      { name = "outils-fw-interco-172.16.51.16-28",    ip = "172.16.51.29",  enabled = true },
+      { name = "outils-bastion-in-10.15.92.0-24",      ip = "10.15.92.251",  enabled = true }
+    ]
+
+    tags = {
+      Owner = "infra-team"
+      Env   = "outils"
+      Role  = "firewall"
+    }
+  }
+}
+
+wallix = {
+  "bastion01" = {
+    name   = "infra-outils-bastion01"
+    flavor = "3e0be0e7-9ed7-47da-b5a5-473832a4a6c0"
+    image  = "fcf78df5-8d8b-422e-a5bb-bc39d35ae19a"
+
+    networks = [
+      { name = "outils-bastion-in-10.15.92.0-24", ip = "10.15.92.12", enabled = true }
+    ]
+
+    tags = {
+      Owner = "infra-team"
+      Env   = "outils"
+      Role  = "bastion"
+    }
+  }
+
+
+
+  "bastion02" = {
+    name   = "infra-outils-bastion02"
+    flavor = "3e0be0e7-9ed7-47da-b5a5-473832a4a6c0"
+    image  = "fcf78df5-8d8b-422e-a5bb-bc39d35ae19a"
+
+    networks = [
+      { name = "outils-bastion-in-10.15.92.0-24", ip = "10.15.92.13", enabled = true }
+    ]
+
+    tags = {
+      Owner = "infra-team"
+      Env   = "outils"
+      Role  = "bastion"
+    }
+  }
+
+
+
+  "wabam01" = {
+    name   = "infra-outils-wabam01"
+    flavor = " e4943d80-10a3-461c-a4a2-2d17ea114fb0"
+    image  = "48023a63-3722-40d1-9758-cc6d792e840f"
+
+    networks = [
+      { name = "outils-bastion-in-10.15.92.0-24", ip = "10.15.92.11", enabled = true }
+    ]
+
+    tags = {
+      Owner = "infra-team"
+      Env   = "outils"
+      Role  = "access-manager"
+    }
+  }
+}

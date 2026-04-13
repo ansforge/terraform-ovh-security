@@ -13,7 +13,7 @@ provider "vault" {
 
 # --- Récupération des credentials OpenStack depuis Vault ---
 ephemeral "vault_kv_secret_v2" "os" {
-  mount = "iacrunner-amont"
+  mount = "iacrunner-outils"
   name  = "openstack_key"
 }
 
@@ -29,7 +29,7 @@ provider "openstack" {
   region                        = var.region
 }
 
-# --- Module Stormshield (multi-firewalls) ---
+# --- Module Stormshield (firewalls) ---
 module "stormshield_cluster" {
   source   = "./modules/security"
   for_each = var.firewalls
@@ -42,7 +42,20 @@ module "stormshield_cluster" {
   tags     = each.value.tags
 }
 
-# --- Outputs ---
+# --- Module Wallix (bastion + access manager) ---
+module "wallix_instances" {
+  source   = "./modules/security"
+  for_each = var.wallix
+
+  name     = each.value.name
+  flavor   = each.value.flavor
+  image    = each.value.image
+  region   = var.region
+  networks = each.value.networks
+  tags     = each.value.tags
+}
+
+# --- Outputs Firewalls ---
 output "fw_private_keys" {
   value     = { for k, v in module.stormshield_cluster : k => v.private_key_pem }
   sensitive = true
@@ -50,4 +63,14 @@ output "fw_private_keys" {
 
 output "fw_instance_ids" {
   value = { for k, v in module.stormshield_cluster : k => v.instance_id }
+}
+
+# --- Outputs Wallix ---
+output "wallix_private_keys" {
+  value     = { for k, v in module.wallix_instances : k => v.private_key_pem }
+  sensitive = true
+}
+
+output "wallix_instance_ids" {
+  value = { for k, v in module.wallix_instances : k => v.instance_id }
 }

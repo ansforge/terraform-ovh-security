@@ -1,4 +1,3 @@
-# modules/security/main.tf
 terraform {
   required_providers {
     openstack = { source = "terraform-provider-openstack/openstack" }
@@ -16,14 +15,12 @@ resource "openstack_compute_keypair_v2" "instance_kp" {
   public_key = tls_private_key.instance_key.public_key_openssh
 }
 
-# Utilisation de data source pour trouver l'ID du réseau par son NOM
 data "openstack_networking_network_v2" "networks" {
   for_each = { for n in var.networks : n.name => n if n.enabled }
   name     = each.key
   region   = var.region
 }
 
-# Création du Port (Interface)
 resource "openstack_networking_port_v2" "ports" {
   for_each   = { for n in var.networks : n.name => n if n.enabled }
   name       = "port-${var.name}-${each.key}"
@@ -34,10 +31,9 @@ resource "openstack_networking_port_v2" "ports" {
     ip_address = each.value.ip
   }
 
-  port_security_enabled = false # Obligatoire pour Stormshield
+  port_security_enabled = false
 }
 
-# L'Instance
 resource "openstack_compute_instance_v2" "fw" {
   name      = var.name
   flavor_id = var.flavor
