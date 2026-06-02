@@ -1,33 +1,34 @@
-# modules/security/variables.tf
-
-variable "region" {
-  type = string
-}
-
 variable "name" {
-  type = string
+  type        = string
+  description = "Nom de l'instance"
 }
 
 variable "flavor" {
-  type = string
+  type        = string
+  description = "ID du flavor OpenStack"
 }
 
 variable "image" {
-  type = string
+  type        = string
+  description = "ID de l'image OpenStack"
 }
 
-# On retire "key_pair" car on génère la clé SSH dynamiquement dans le module maintenant
-# variable "key_pair" { type = string } 
-
-variable "tags" {
-  type = map(string)
+variable "region" {
+  type        = string
+  description = "Région OpenStack"
 }
 
 variable "networks" {
-  description = "Liste des réseaux avec ip et enabled"
   type = list(object({
     name    = string
     ip      = string
     enabled = bool
   }))
+  description = "Liste des interfaces réseau"
+}
+
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "Métadonnées de l'instance"
 }
