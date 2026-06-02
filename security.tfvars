@@ -7,9 +7,10 @@ firewalls = {
     image  = "333bc0fd-7067-4997-ae74-97f609f8d1bc"
 
     networks = [
-      { name = "outils-fwfe-admin-10.15.20.0-24",   ip = "10.15.20.51",   enabled = true },
-      { name = "outils-dmz-exposed-10.15.30.0-24",  ip = "10.15.30.251",  enabled = true },
-      { name = "outils-fw-interco-172.16.26.16-28", ip = "172.16.26.25",   enabled = true }
+      { name = "outils-fwfe-admin-10.15.20.0-24",   ip = "10.15.20.254",   enabled = true },
+      { name = "outils-dmz-exposed-10.15.30.0-24",  ip = "10.15.30.254",  enabled = true },
+      { name = "outils-fw-interco-172.16.26.16-28", ip = "172.16.26.25",   enabled = true },
+      { name = "outils-fw-front-57.130.50.224-28", ip = "57.130.50.238",   enabled = true }
     ]
 
     tags = {
@@ -24,7 +25,7 @@ wallix = {
   "bastion01" = {
     name   = "infra-outils-bastion01"
     flavor = "e4943d80-10a3-461c-a4a2-2d17ea114fb0"
-    image  = "29af1d91-b83b-469b-9a99-ebf66bbb7611"
+    image  = "0a4ac254-c85a-40f7-97b8-0b3fa108d7d1"
 
     networks = [
       { name = "outils-infra-admin-10.16.51.0-24", ip = "10.16.51.52", enabled = true },
@@ -41,7 +42,7 @@ wallix = {
   "bastion02" = {
     name   = "infra-outils-bastion02"
     flavor = "e4943d80-10a3-461c-a4a2-2d17ea114fb0"
-    image  = "29af1d91-b83b-469b-9a99-ebf66bbb7611"
+    image  = "0a4ac254-c85a-40f7-97b8-0b3fa108d7d1"
 
     networks = [
       { name = "outils-infra-admin-10.16.51.0-24", ip = "10.16.51.53", enabled = true },
@@ -58,7 +59,7 @@ wallix = {
   "wabam01" = {
     name   = "infra-outils-wabam01"
     flavor = "e4943d80-10a3-461c-a4a2-2d17ea114fb0"
-    image  = "48023a63-3722-40d1-9758-cc6d792e840f"
+    image  = "e5c8d8ad-9379-44ec-a2cf-45a974ada50d"
 
     networks = [
       { name = "outils-infra-admin-10.16.51.0-24", ip = "10.16.51.51", enabled = true },
